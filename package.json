@@ -1,0 +1,65 @@
+{
+	"name": "tauri-pkg-test",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"lint": "yarn lint:backend; yarn lint:frontend",
+		"lint:compact": "yarn lint:backend:compact; yarn lint:frontend:compact",
+		"lint:backend": "vue-cli-service lint --no-fix src-backend",
+		"lint:backend:compact": "yarn lint:backend --format stylish src-backend",
+		"lint:frontend": "vue-cli-service lint --no-fix src",
+		"lint:frontend:compact": "yarn lint:frontend --format stylish src",
+		"serve:backend": "yarn __tsc__ && yarn node dist-backend/backend.js",
+		"serve:frontend": "vue-cli-service serve",
+		"serve:tauri": "vue-cli-service tauri:serve",
+		"serve:tauri://": "yarn build:frontend; yarn tauri dev --config {\\\"build\\\":{\\\"devPath\\\":\\\"../dist\\\"}}",
+		"__mv_pkg__": "mv src-tauri/bin/backend src-tauri/bin/backend-$(rustc -Vv | grep host | cut -f2 -d' ')",
+		"__mv_pkg__:windows": "powershell Move-Item -Force -Path src-tauri/bin/backend.exe -Destination src-tauri/bin/backend-$(\\\"$(rustc -Vv | Select-String \"host\")\\\".substring(6)).exe",
+		"__pkg__": "pkg -C GZip --out-path src-tauri/bin",
+		"__tsc__": "tsc --build backend.tsconfig.json",
+		"build:linux": "yarn build:backend:linux; yarn build:tauri",
+		"build:macos": "yarn build:backend:macos; yarn build:tauri",
+		"build:windows": "yarn build:backend:windows; yarn build:tauri",
+		"build:backend:linux": "yarn __tsc__; yarn __pkg__ -t node16-linux-x64 dist-backend/backend.js; yarn __mv_pkg__",
+		"build:backend:macos": "yarn __tsc__; yarn __pkg__ -t node16-macos-x64 dist-backend/backend.js -b; yarn __mv_pkg__",
+		"build:backend:windows": "yarn __tsc__; yarn __pkg__ -t node16-win-x64 dist-backend/backend.js; yarn __mv_pkg__:windows",
+		"build:frontend": "vue-cli-service build",
+		"build:tauri": "vue-cli-service tauri:build",
+		"clean": "yarn clean:backend; yarn clean:frontend; yarn clean:tauri",
+		"clean:backend": "rimraf src-tauri/bin dist-backend dist-backend-obfuscated",
+		"clean:frontend": "rimraf dist",
+		"clean:tauri": "rimraf src-tauri/target src-tauri/WixTools"
+	},
+	"dependencies": {
+		"@tauri-apps/api": "1.0.0-beta.8",
+		"@tauri-apps/cli": "1.0.0-beta.10",
+		"core-js": "3.18.0",
+		"fastify": "3.21.6",
+		"sharp": "0.29.1",
+		"vue": "3.2.6",
+		"vue-class-component": "8.0.0-rc.1"
+	},
+	"devDependencies": {
+		"@types/sharp": "0.29.2",
+		"@typescript-eslint/eslint-plugin": "4.31.2",
+		"@typescript-eslint/parser": "4.31.2",
+		"@vue/cli-plugin-babel": "4.5.13",
+		"@vue/cli-plugin-eslint": "4.5.13",
+		"@vue/cli-plugin-typescript": "4.5.13",
+		"@vue/cli-service": "4.5.13",
+		"@vue/compiler-sfc": "3.2.18",
+		"@vue/eslint-config-typescript": "7.0.0",
+		"eslint": "7.32.0",
+		"eslint-plugin-vue": "7.18.0",
+		"pkg": "5.3.2",
+		"rimraf": "3.0.2",
+		"typescript": "4.4.3",
+		"vue-cli-plugin-tauri": "1.0.0-beta.6"
+	},
+	"yarn-upgrade-all": {
+		"ignore": [
+			"vue",
+			"vue-class-component"
+		]
+	}
+}
